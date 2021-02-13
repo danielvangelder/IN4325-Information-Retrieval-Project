@@ -5,8 +5,9 @@ This is the repository for the implementation of the IR project for the TU Delft
 
 ## Prerequisites:
 - Python 3.7.x
-- Pandas
-- Numpy
+- Pandas (latest)
+- Numpy (latest)
+- jupyter notebook (latest)
 - Download the [TREC 2019 Deep Learning Track Passage Ranking Dataset](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019#passage-ranking-dataset) and place the follow files in the `src/data` folder:
     - Collection
     - Queries
