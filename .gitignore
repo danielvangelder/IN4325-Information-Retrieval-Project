@@ -1,6 +1,22 @@
 # Ignore dataset
 src/data/*
 
+# OSX files
+**/.DS_Store
+
+# Anserini/Pyserini Files
+src/indexes
+src/docs
+src/collections
+src/bin
+src/setup.cfg
+src/readme.md
+src/pom.xml
+src/src
+src/logs
+src/runs
+src/tools
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
