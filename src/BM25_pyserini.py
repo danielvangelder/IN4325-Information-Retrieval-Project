@@ -3,8 +3,8 @@ from pyserini.search import SimpleSearcher
 
 
 class BM25:
-""" BM25 implementation based on the Pyserini base BM25 implementation.
-"""
+    """ BM25 implementation based on the Pyserini base BM25 implementation.
+    """
 
     def __init__(self, index_loc, k1=0.9, b=0.4):
         self.searcher = SimpleSearcher(index_loc)
@@ -45,4 +45,4 @@ class BM25:
 # Evaluate the 200 msmarco test queries.
 bm25 = BM25("anserini/indexes/msmarco-passage/lucene-index-msmarco")
 testloc = "anserini/collections/msmarco-passage/msmarco-test2019-queries.tsv"
-bm25.evaluate_queries_file(testloc, "msmarco-test.csv")
+bm25.evaluate_queries_file(testloc, "src/data/bm25-msmarco-test.csv")
