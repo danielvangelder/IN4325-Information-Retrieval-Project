@@ -1,6 +1,7 @@
 # Ignore dataset
 src/data/*
 
+
 # OSX files
 **/.DS_Store
 
@@ -16,6 +17,18 @@ src/src
 src/logs
 src/runs
 src/tools
+src/LICENSE
+src/environment.yml
+src/MANIFEST.IN
+src/requirements.txt
+src/setup.cfg 2
+src/setup.py
+src/experiments
+src/pygaggle
+src/notebooks
+src/scripts
+src/tests
+src/models
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
