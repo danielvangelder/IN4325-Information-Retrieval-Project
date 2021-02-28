@@ -24,7 +24,7 @@ class BM25:
         result = self.searcher.search(query, k=1000)
         return list(map(lambda x: [x.docid, x.score], result))
     
-    def evaluate_queries_file(self, loc, out_loc):
+    def evaluate_queries_file(self, loc, out_loc, trec=False):
         """ Evaluates a trec topic list and writes on the output location.
         """
         counter = 0
@@ -39,10 +39,15 @@ class BM25:
                 results.loc[counter] = r
                 counter += 1
         
+        if trec:
+            results.insert(4, 'bm25', 'bm25')
+            results.insert(1, 'Q0', 'Q0')
+            results.score = results.score.apply(lambda x: round(x, 2))
+
         results.to_csv(out_loc, sep=' ', header=None, index=False)
 
 
 # Evaluate the 200 msmarco test queries.
 bm25 = BM25("anserini/indexes/msmarco-passage/lucene-index-msmarco")
 testloc = "anserini/collections/msmarco-passage/msmarco-test2019-queries.tsv"
-bm25.evaluate_queries_file(testloc, "src/data/bm25-msmarco-test.csv")
+bm25.evaluate_queries_file(testloc, "src/data/bm25-msmarco-test.trec", trec=True)
