@@ -50,7 +50,7 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
         texts = hits_to_texts(hits)
         queries_text.append(texts)
     
-    print('Reranking all queries!')
+    print('Reranking all queries using MonoT5!')
     rankings = []
 
     for (i,query) in enumerate(tqdm(queries)):
@@ -58,7 +58,7 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
         reranked.sort(key=lambda x: x.score, reverse=True)
         rankings.append(reranked)   
     
-    print('Outputting to file')
+    print('Outputting to file...')
     if '.tsv' in output_path:
         output_to_tsv(queries, rankings, output_path)
     elif '.csv' in output_path:
