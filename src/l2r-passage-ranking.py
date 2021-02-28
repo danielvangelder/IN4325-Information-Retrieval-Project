@@ -6,27 +6,28 @@ from tqdm import tqdm
 OUTPUT_PATH = 'runs/passage_reranking_monot5.tsv'
 INDEX_PATH = 'indexes/msmarco-passage/lucene-index-msmarco'
 QUERIES_PATH = 'collections/msmarco-passage/msmarco-test2019-queries.tsv'
+RUN = 0
 
-def output_to_csv(queries, rankings, file_path='runs/monot5.csv'):
-    '''Desired output format: 'query_id', 'doc_id', 'rank', 'score'
+def output_to_csv(queries, rankings, run, file_path):
+    '''Desired output format: 'query_id', 'Q0', 'doc_id', 'rank', 'score', 'run name'
     '''
     with open(file_path, 'w') as f:
         for (i,q) in enumerate(queries):
             q_rank = rankings[i]
             for (j,r) in enumerate(q_rank):
-                f.write(str(q.id) + ' ' + str(r.metadata['docid']) + ' ' + str(j) + ' ' + str(r.score) + '\n')
+                f.write(str(q.id) + ' Q0 ' + str(r.metadata['docid']) + ' ' + str(j) + ' ' + str(r.score) + str(run) + '\n')
                 
-def output_to_tsv(queries, rankings, file_path='runs/monot5.tsv'):
-    '''Desired output format: 'query_id', 'doc_id', 'rank', 'score'
+def output_to_tsv(queries, rankings, run, file_path):
+    '''Desired output format: 'query_id', 'Q0', 'doc_id', 'rank', 'score', 'run name'
     '''
     with open(file_path, 'w') as f:
         for (i,q) in enumerate(queries):
             q_rank = rankings[i]
             for (j,r) in enumerate(q_rank):
-                f.write(str(q.id) + '\t' + str(r.metadata['docid']) + '\t' + str(j) + ' ' + str(r.score) + '\n')
+                f.write(str(q.id) + '\tQ0\t' + str(r.metadata['docid']) + '\t' + str(j) + ' ' + str(r.score) + str(run) + '\n')
 
 
-def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PATH):
+def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PATH, run=RUN):
     print('################################################')
     print("##### Performing Passage Ranking using L2R #####")
     print('################################################')
@@ -60,9 +61,9 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
     
     print('Outputting to file...')
     if '.tsv' in output_path:
-        output_to_tsv(queries, rankings, output_path)
+        output_to_tsv(queries, rankings, run, output_path)
     elif '.csv' in output_path:
-        output_to_csv(queries, rankings, output_path)
+        output_to_csv(queries, rankings, run, output_path)
     else:
         print('ERROR: invalid output file format provided, please use either .csv or .tsv. Exiting')
         sys.exit(1)
@@ -74,11 +75,11 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
 
 if __name__ == "__main__":
     if len(sys.argv) == 4:
-        main(sys.argv[1], sys.argv[2], sys.argv[3])
+        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     elif len(sys.argv) > 1:
         print('ERROR: invalid amount of arguments provided')
-        print('Please pass either 0 or 3 arguments. Format: \"python l2r-passage-ranking.py OUTPUT_PATH INDEX_PATH TEST_QUERIES_PATH \", if 0 arguments passed, defaults are used:')
-        print('output path:', OUTPUT_PATH, 'index path:', INDEX_PATH, 'queries path:', QUERIES_PATH)
+        print('Please pass either 0 or 4 arguments. Format: \"python l2r-passage-ranking.py OUTPUT_PATH INDEX_PATH TEST_QUERIES_PATH RUN\", if 0 arguments passed, defaults are used:')
+        print('output path:', OUTPUT_PATH, 'index path:', INDEX_PATH, 'queries path:', QUERIES_PATH, 'run:', RUN)
         sys.exit(1)
     else:
         main()
