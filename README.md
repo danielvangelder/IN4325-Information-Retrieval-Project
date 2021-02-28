@@ -17,8 +17,10 @@ This is the repository for the implementation of the IR project for the TU Delft
 
 Activate the virtual environment in the `venv` folder to start a python environment with the appropriate dependencies.
 
-## Installing Anserini/Pyserini and the MS-MARCO dataset 
-The steps for this installation have been retrieved from the anserini and pyserini documentation. This process has been tested on Mac OSX and ~~Windows~~.
+## Installing Anserini/Pyserini/pygaggle and the MS-MARCO dataset 
+The steps for this installation have been retrieved from the anserini and pyserini documentation. This process has been tested on Mac OSX and ~~Windows~~. The package manager used is PyPI, using conda is _not_ recommended.
+
+### Pyserini
 
 1. Clone the [anserini repository](https://github.com/castorini/anserini) using git clone with the `--recurse-submodules` option, this also installs the `eval` subfolder (note: the following code uses SSH while HTTPS is also possible): 
 ```sh
@@ -44,6 +46,8 @@ cd tools/eval/ndeval && make && cd ../../..
 pip install pyserini
 ```
 
+### MS-MARCO
+
 6. Download and extract the MS MARCO dataset for Passage Ranking. We will create a new directory for this (make sure to do this from the `src` folder):
 ```sh
 mkdir -p collections/msmarco-passage
@@ -57,21 +61,40 @@ tar xvfz collections/msmarco-passage/collectionandqueries.tar.gz -C collections/
 ```
 If desired, the checksum of the downloaded collection file `collectionandqueries.tar.gz` can be checked: it should have an MD5 checksum of `31644046b18952c1386cd4564ba2ae69`.
 
-7. Convert the MS MARCO `.tsv` collection into Anserini's jsonl files:
+7. Download the test queries file and place it in the directory with the other collection files:
+
+```sh
+wget https://msmarco.blob.core.windows.net/msmarcoranking/msmarco-test2019-queries.tsv.gz -P collections/msmarco-passage
+```
+
+### Indexing MS-MARCO
+
+8. Convert the MS MARCO `.tsv` collection into Anserini's jsonl files:
 ```sh
 python tools/scripts/msmarco/convert_collection_to_jsonl.py \
  --collection-path collections/msmarco-passage/collection.tsv \
  --output-folder collections/msmarco-passage/collection_jsonl
 ```
 
-8. Now index these docs as a `JsonCollection` using Anserini (this may take a few minutes):
+9. Now index these docs as a `JsonCollection` using Anserini (this may take a few minutes):
 ```sh
 python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocumentGenerator \
  -threads 9 -input collections/msmarco-passage/collection_jsonl \
  -index indexes/lucene-index-msmarco-passage -storePositions -storeDocvectors -storeRaw
 ```
 
-9. This should complete the installation process. Verify that everything is correct by running `verify_installation.py` in the `src` folder. This should print `INSTALLATION OK` if everything is working correctly. If not, please refer to the installation of [anserini](https://github.com/castorini/anserini), [pyserini](https://github.com/castorini/pyserini) and the following [doc](https://github.com/castorini/pyserini/blob/master/docs/experiments-msmarco-passage.md#data-prep) to debug.
+10. This should complete the installation process. Verify that everything is correct by running `verify_installation.py` in the `src` folder. This should print `INSTALLATION OK` if everything is working correctly. If not, please refer to the installation of [anserini](https://github.com/castorini/anserini), [pyserini](https://github.com/castorini/pyserini) and the following [doc](https://github.com/castorini/pyserini/blob/master/docs/experiments-msmarco-passage.md#data-prep) to debug.
+
+### pygaggle
+
+11. Install via PyPI: `pip install pygaggle`
+
+12. Clone the repo recursively such that the submodules are downloaded as well: `git clone --recursive https://github.com/castorini/pygaggle.git`
+
+13. Move all the contents of the repository into the `src` folder.
+
+14. Make sure all the `pygaggle` requirements are installed: `pip install -r requirements.txt`
+
 
 ## Running the pipeline
 
