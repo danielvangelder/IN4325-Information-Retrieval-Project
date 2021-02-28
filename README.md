@@ -95,6 +95,7 @@ python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocu
 
 14. Make sure all the `pygaggle` requirements are installed: `pip install -r requirements.txt`
 
+15. Installation can be verified by opening and running the `src/pygaggle-reference.ipynb` notebook.
 
 ## Running the pipeline
 
