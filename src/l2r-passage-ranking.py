@@ -6,7 +6,7 @@ from tqdm import tqdm
 OUTPUT_PATH = 'runs/passage_reranking_monot5.tsv'
 INDEX_PATH = 'indexes/msmarco-passage/lucene-index-msmarco'
 QUERIES_PATH = 'collections/msmarco-passage/msmarco-test2019-queries.tsv'
-RUN = 0
+RUN = 'MonoT5'
 
 def output_to_csv(queries, rankings, run, file_path):
     '''Desired output format: 'query_id', 'Q0', 'doc_id', 'rank', 'score', 'run name'
