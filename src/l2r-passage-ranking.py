@@ -15,7 +15,7 @@ def output_to_csv(queries, rankings, run, file_path):
         for (i,q) in enumerate(queries):
             q_rank = rankings[i]
             for (j,r) in enumerate(q_rank):
-                f.write(str(q.id) + ',Q0,' + str(r.metadata['docid']) + ',' + str(j) + ',' + str(r.score) + str(run) + '\n')
+                f.write(str(q.id) + ',Q0,' + str(r.metadata['docid']) + ',' + str(j) + ',' + str(r.score) + ',' + str(run) + '\n')
                 
 def output_to_tsv(queries, rankings, run, file_path):
     '''Desired output format: 'query_id', 'Q0', 'doc_id', 'rank', 'score', 'run name'
@@ -24,7 +24,7 @@ def output_to_tsv(queries, rankings, run, file_path):
         for (i,q) in enumerate(queries):
             q_rank = rankings[i]
             for (j,r) in enumerate(q_rank):
-                f.write(str(q.id) + '\tQ0\t' + str(r.metadata['docid']) + '\t' + str(j) + ' ' + str(r.score) + str(run) + '\n')
+                f.write(str(q.id) + '\tQ0\t' + str(r.metadata['docid']) + '\t' + str(j) + ' ' + str(r.score) + '\t' + str(run) + '\n')
 
 
 def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PATH, run=RUN):
