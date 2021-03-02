@@ -7,6 +7,7 @@ OUTPUT_PATH = 'runs/passage_reranking_monot5.tsv'
 INDEX_PATH = 'indexes/msmarco-passage/lucene-index-msmarco'
 QUERIES_PATH = 'collections/msmarco-passage/msmarco-test2019-queries.tsv'
 RUN = 'MonoT5'
+K = 100
 
 def output_to_csv(queries, rankings, run, file_path):
     '''Desired output format: 'query_id', 'Q0', 'doc_id', 'rank', 'score', 'run name'
@@ -27,7 +28,7 @@ def output_to_tsv(queries, rankings, run, file_path):
                 f.write(str(q.id) + '\tQ0\t' + str(r.metadata['docid']) + '\t' + str(j) + ' ' + str(r.score) + '\t' + str(run) + '\n')
 
 
-def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PATH, run=RUN):
+def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PATH, run=RUN, k=K):
     print('################################################')
     print("##### Performing Passage Ranking using L2R #####")
     print('################################################')
@@ -44,10 +45,10 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
         content = f.readlines()
         content = [x.strip().split('\t') for x in content] 
         queries = [Query(x[1], x[0]) for x in content]
-    print('Ranking queries using BM25 (k=50)')
+    print('Ranking queries using BM25 (k={})',k)
     queries_text = []
     for query in tqdm(queries):
-        hits = searcher.search(query.text, k=50)
+        hits = searcher.search(query.text, k=K)
         texts = hits_to_texts(hits)
         queries_text.append(texts)
     
