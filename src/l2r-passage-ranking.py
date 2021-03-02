@@ -45,7 +45,7 @@ def main(output_path=OUTPUT_PATH, index_path=INDEX_PATH, queries_path=QUERIES_PA
         content = f.readlines()
         content = [x.strip().split('\t') for x in content] 
         queries = [Query(x[1], x[0]) for x in content]
-    print('Ranking queries using BM25 (k={})',k)
+    print(f'Ranking queries using BM25 (k={k})')
     queries_text = []
     for query in tqdm(queries):
         hits = searcher.search(query.text, k=K)
