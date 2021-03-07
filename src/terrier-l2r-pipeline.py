@@ -42,11 +42,13 @@ import pandas as pd
 # Load topics as df: [qid, query]
 # load qrels as df: [qid, docno, label]
 def load_qrels_file(path):
+    # TODO: remove punctuation
     df = pd.read_csv(path, sep='\t', names=['qid','q0','docno','label'])
     del df['q0']
     return df
 
 def load_topics_file(path):
+    # TODO: remove punctuation
     df = pd.read_csv(path, sep='\t', names=['qid','query'])
     return df
 
