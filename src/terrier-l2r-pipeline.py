@@ -5,7 +5,7 @@ COLLECTION = "trec-deep-learning-passages"
 COLLECTION_ZIP_PATH = "collections/msmarco-passage/collectionandqueries.tar.gz"
 FEATURES_BATCH_N = 1000
 RUN_ID = "00"
-TOP_N_TRAIN = 100
+TOP_N_TRAIN = 200
 RANDOM_FOREST = "RANDOMFOREST"
 LAMBDAMART = "LAMBDAMART"
 
@@ -23,7 +23,7 @@ import string
 def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TRAIN, run_id=RUN_ID):
 
     if not pt.started():
-    pt.init(mem=8000)
+        pt.init(mem=8000)
 
 
 
@@ -43,6 +43,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
             
 
     try:
+        print("Indexing MSMARCO passage ranking dataset")
         # Single threaded indexing           
         # iter_indexer = pt.IterDictIndexer("./passage_index")
         # indexref3 = iter_indexer.index(msmarco_generate(), meta=['docno', 'text'], meta_lengths=[20, 4096])            
@@ -175,7 +176,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     '''.format(train_sub.shape[0], train_qrels_sub.shape[0], validation_sub.shape[0], validation_qrels_sub.shape[0], FEATURES_BATCH_N))
 
     start = time.time()
-
+    print("Model output is not rendered to the terminal until after the run is finished...")
     if algorithm.upper() == LAMBDAMART:
         print('Training LambdaMART pipeline')
 
@@ -195,7 +196,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
         ltr_pipeline.fit(train_sub, train_qrels_sub, validation_sub, validation_qrels_sub)
         model_name = 'RandomForest'
 
-        ### End of training ###
+    ### End of training ###
 
     end = time.time()
     print('Training finished, time elapsed:', end - start, 'seconds...')
@@ -213,19 +214,23 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     # res = ltr_pipeline.transform(test_topics[:10].copy())
 
     # Test on entire testset
+    start = time.time()
     res = ltr_pipeline.transform(test_topics)
+    end = time.time()
+    print('Test evaluation finished, time elapsed:', end - start, 'seconds...')
 
 
     print('Writing results...')
-    pt.io.write_results(res,'./{}_resuls_{}.trec'.format(model_name,str(run_id)),format='trec')
-    print('DONE')
+    output_file_path = './{}_resuls_{}.trec'.format(model_name,str(run_id))
+    pt.io.write_results(res,output_file_path,format='trec')
+    print('SUCCES: results can be found at: ', output_file_path)
 
 
 if __name__ == "__main__":
     file_name = sys.argv[0]
-    if sys.argv <= 1:
+    if len(sys.argv) <= 1:
         main()
-    elif sys.argv == 5:
+    elif len(sys.argv) == 5:
         main(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
     else:
         print("ERROR: supplied invalid amount of arguments, please pass either 0 or 4 arguments to the program.")
@@ -234,6 +239,7 @@ if __name__ == "__main__":
         - [no. passages to retrieve in stage 1]: default: 1000
         - [amount of train/validation topics to use (values <= 0 will be interpreted as using all)], default: 100
         - [run name for file output]: default: 00''')
+        sys.exit(1)
 
 
 
