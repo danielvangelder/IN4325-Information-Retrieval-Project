@@ -102,12 +102,12 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     test_topics = load_topics_file('collections/msmarco-passage/msmarco-test2019-queries.tsv')
 
 
-    print('Getting first {} train topics and corresponding qrels'.format(TOP_N_TRAIN))
+    print('Getting first {} train topics and corresponding qrels'.format(top_n_train))
     # TODO: not all queries here have qrels... Maybe filter on first 100 that have qrels?
     if top_n_train > 0:
-        train_sub = train_topics[:TOP_N_TRAIN].copy()
+        train_sub = train_topics[:top_n_train].copy()
         train_qrels_sub = filter_train_qrels(train_sub, train_qrels)
-        validation_sub = validation_topics[:TOP_N_TRAIN].copy()
+        validation_sub = validation_topics[:top_n_train].copy()
         validation_qrels_sub = filter_train_qrels(validation_sub, validation_qrels)
     else:
         train_sub = train_topics
@@ -129,8 +129,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     print('Setting up FeaturesBatchRetriever')
 
 
-    pipeline = pt.FeaturesBatchRetrieve(index, wmodel="BM25", features=["WMODEL:BM25", "WMODEL:Tf", "WMODEL:PL2"]) % 10
-
+    pipeline = pt.FeaturesBatchRetrieve(index, wmodel="BM25", features=["WMODEL:BM25", "WMODEL:Tf", "WMODEL:PL2"]) % feat_batch
 
     #### LAMBDAMART
     print('Configuring Ranker...')
@@ -146,7 +145,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
         ndcg_eval_at=[1, 3, 5, 10],
         learning_rate= .1,
         importance_type="gain",
-        num_iterations=10,
+        # num_iterations=10,
         silent=False,
         n_jobs=-1)
 
