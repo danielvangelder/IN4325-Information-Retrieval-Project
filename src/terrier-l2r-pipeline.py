@@ -44,10 +44,11 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
 
     try:
         print("Indexing MSMARCO passage ranking dataset")
+        print("If the index has not be constructed yet but the MSMARCO dataset has been downloaded previously, it is recommended to place the collection.tar.gz in the \"/Users/\{username\}/.pyterrier/corpora/trec-deep-learning-passages\" directory. This will make sure that PyTerrier does not download the corpus of the internet and uses the local file instead. ")
         # Single threaded indexing           
         # iter_indexer = pt.IterDictIndexer("./passage_index")
         # indexref3 = iter_indexer.index(msmarco_generate(), meta=['docno', 'text'], meta_lengths=[20, 4096])            
-
+        print("Performing Multi threaded indexing, if this does not work on your system (probably if it is Windows), then uncomment the two lines above this print statement and comment out the two lines below this statement in the code to make sure it runs on a single thread.")
         # Multi threaded indexing, UNIX-based systems only!!!!!   
         iter_indexer = pt.IterDictIndexer("./passage_index_8", threads=8)
         indexref4 = iter_indexer.index(msmarco_generate(), meta=['docno', 'text'], meta_lengths=[20, 4096])
@@ -56,6 +57,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
         if "Index already exists" in str(err):
             print("Index already exists, loading existing one")
             indexref4 = "./passage_index_8/data.properties"
+        
 
     pt.logging('WARN')
     index = pt.IndexFactory.of(indexref4)
@@ -95,6 +97,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
 
 
     print('Loading train/validation topics and qrels')
+    print("Looking for the query files in the following directory: collections/msmarco-passage/, make sure to have the query files located there...")
     train_topics = load_topics_file('collections/msmarco-passage/queries.train.tsv')
     train_qrels = load_qrels_file('collections/msmarco-passage/qrels.train.tsv')
     validation_topics = load_topics_file('collections/msmarco-passage/queries.dev.small.tsv')
