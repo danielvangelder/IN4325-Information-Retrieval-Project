@@ -10,6 +10,7 @@ This is the repository for the implementation of the IR project for the TU Delft
 - jupyter notebook (latest)
 - Maven 3.3+
 - Java 11 or higher
+- PyTerrier
 - Download the [TREC 2019 Deep Learning Track Passage Ranking Dataset](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019#passage-ranking-dataset) and place the following (extracted) files in the `src/data` folder:
     - Collection
     - Queries
@@ -17,7 +18,7 @@ This is the repository for the implementation of the IR project for the TU Delft
 
 Activate the virtual environment in the `venv` folder to start a python environment with the appropriate dependencies.
 
-## Installing Anserini/Pyserini/pygaggle and the MS-MARCO dataset 
+## Installing Anserini/Pyserini/PyTerrier/pygaggle and the MS-MARCO dataset 
 The steps for this installation have been retrieved from the anserini and pyserini documentation. This process has been tested on Mac OSX and ~~Windows~~. The package manager used is PyPI, using conda is _not_ recommended.
 
 ### Pyserini
@@ -67,7 +68,7 @@ If desired, the checksum of the downloaded collection file `collectionandqueries
 wget https://msmarco.blob.core.windows.net/msmarcoranking/msmarco-test2019-queries.tsv.gz -P collections/msmarco-passage
 ```
 
-### Indexing MS-MARCO
+### Indexing MS-MARCO for PySerini
 
 8. Convert the MS MARCO `.tsv` collection into Anserini's jsonl files:
 ```sh
@@ -85,18 +86,39 @@ python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocu
 
 10. This should complete the installation process. Verify that everything is correct by running `verify_installation.py` in the `src` folder. This should print `INSTALLATION OK` if everything is working correctly. If not, please refer to the installation of [anserini](https://github.com/castorini/anserini), [pyserini](https://github.com/castorini/pyserini) and the following [doc](https://github.com/castorini/pyserini/blob/master/docs/experiments-msmarco-passage.md#data-prep) to debug.
 
+### PyTerrier
+
+11. Install PyTerrier using PyPI as follows: `pip install python-terrier`. This should install Terrier as well.
+
+12. Also make sure to install LightGBM using `Homebrew` as follows: `brew install lightgbm` and consequently through PyPI: `pip install lightgbm`
+
+13. Make sure that `scikit-learn` is installed: `pip install -U scikit-learn`
+
+14. Indexing the MSMARCO dataset will be performed by the pipeline. If the dataset has previously been indexed, then it will reload the index.
+
 ### pygaggle
 
-11. Install via PyPI: `pip install pygaggle`
+15. Install via PyPI: `pip install pygaggle`
 
-12. Clone the repo recursively such that the submodules are downloaded as well: `git clone --recursive https://github.com/castorini/pygaggle.git`
+16. Clone the repo recursively such that the submodules are downloaded as well: `git clone --recursive https://github.com/castorini/pygaggle.git`
 
-13. Move all the contents of the repository into the `src` folder.
+17. Move all the contents of the repository into the `src` folder.
 
-14. Make sure all the `pygaggle` requirements are installed: `pip install -r requirements.txt`
+18. Make sure all the `pygaggle` requirements are installed: `pip install -r requirements.txt`
 
-15. Installation can be verified by opening and running the `src/pygaggle-reference.ipynb` notebook.
+19. Installation can be verified by opening and running the `src/pygaggle-reference.ipynb` notebook.
 
 ## Running the pipeline
 
+### BM25
+
+### LambdaMART
+
+### T5
+
+
+
+
 ## Reading the analysis
+
+The notebook used for the error analysis 
