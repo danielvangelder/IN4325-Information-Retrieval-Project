@@ -1,12 +1,14 @@
 # IN4325 Information Retrieval Project
-##### `Authors:` Thomas Bos (xxxxxxx) & Daniël van Gelder (4551028), group 7
+##### `Authors:` Thomas Bos (4543408) & Daniël van Gelder (4551028), group 7
 
 This is the repository for the implementation of the IR project for the TU Delft MSc course IN4325 Information Retrieval. In this project we implement two baselines for a Passage Ranking task and perform an analysis of the results.
 
 ## Prerequisites:
 - Python 3.6+
+- Pyserini (latest)
 - Pandas (latest)
 - Numpy (latest)
+- autocorrect (latest)
 - jupyter notebook (latest)
 - Maven 3.3+
 - Java 11 or higher
@@ -95,6 +97,8 @@ python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocu
 13. Make sure that `scikit-learn` is installed: `pip install -U scikit-learn`
 
 14. Indexing the MSMARCO dataset will be performed by the pipeline. If the dataset has previously been indexed, then it will reload the index.
+### Running BM25
+In order to run the BM25 algorithm, run `src/BM25_pyserini.py`. Make sure that the locations to the index and query files specified at the bottom are correct.
 
 ### pygaggle
 
