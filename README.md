@@ -97,8 +97,6 @@ python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocu
 13. Make sure that `scikit-learn` is installed: `pip install -U scikit-learn`
 
 14. Indexing the MSMARCO dataset will be performed by the pipeline. If the dataset has previously been indexed, then it will reload the index.
-### Running BM25
-In order to run the BM25 algorithm, run `src/BM25_pyserini.py`. Make sure that the locations to the index and query files specified at the bottom are correct.
 
 ### pygaggle
 
@@ -115,14 +113,24 @@ In order to run the BM25 algorithm, run `src/BM25_pyserini.py`. Make sure that t
 ## Running the pipeline
 
 ### BM25
+In order to run the BM25 algorithm, run `src/BM25_pyserini.py`. Make sure that the locations to the index and query files specified at the bottom are correct.
 
 ### LambdaMART
+Run the entire LambdaMART pipeline by running `src/terrier-l2r-pipeline.py`. If no arguments are passed, default parameters will be used. Otherwise, make sure to pass the correct arguments:
+
+- `[algorithm]`: either lambdamart or randomforest, default: lambdamart
+- `[no. passages to retrieve in stage 1]`: default: 1000
+- `[amount of train topics to use (values <= 0 will be interpreted as using all)]`, default: 100
+- `[amount of validation topics to use (values <= 0 will be interpreted as using all)]`, default: 100
+- `[run name for file output]`: default: 00
+
 
 ### T5
+The T5 pipeline can be run by running: `python t5-passage-ranking.py OUTPUT_PATH INDEX_PATH TEST_QUERIES_PATH RUN`. 
 
 
 
 
 ## Reading the analysis
 
-The notebook used for the error analysis 
+The notebook used for the error analysis is the `analysis.ipynb` notebook. The other notebooks are used as exploratory analysis of the algorithms. 

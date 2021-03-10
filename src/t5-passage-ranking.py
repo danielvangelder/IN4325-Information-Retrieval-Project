@@ -79,7 +79,7 @@ if __name__ == "__main__":
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     elif len(sys.argv) > 1:
         print('ERROR: invalid amount of arguments provided')
-        print('Please pass either 0 or 4 arguments. Format: \"python l2r-passage-ranking.py OUTPUT_PATH INDEX_PATH TEST_QUERIES_PATH RUN\", if 0 arguments passed, defaults are used:')
+        print('Please pass either 0 or 4 arguments. Format: \"python t5-passage-ranking.py OUTPUT_PATH INDEX_PATH TEST_QUERIES_PATH RUN\", if 0 arguments passed, defaults are used:')
         print('output path:', OUTPUT_PATH, 'index path:', INDEX_PATH, 'queries path:', QUERIES_PATH, 'run:', RUN)
         sys.exit(1)
     else:
