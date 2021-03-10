@@ -1,6 +1,12 @@
 # Ignore dataset
 src/data/*
 
+# Pyterrier index
+*/passage_index_8
+# Run files pyterrier
+src/*.trec
+# Pickle files
+src/*.p
 
 # OSX files
 **/.DS_Store
