@@ -2,7 +2,6 @@ import time
 from math import log
 
 import pandas as pd
-import spacy
 from autocorrect import Speller
 from pyserini.index import IndexReader
 from pyserini.search import SimpleSearcher
@@ -138,6 +137,9 @@ class BM25:
 
 
 # Evaluate the 200 msmarco test queries.
-bm25 = BM25("../anserini/indexes/msmarco-passage/lucene-index-msmarco")
-testloc = "../anserini/collections/msmarco-passage/msmarco-test2019-queries.tsv"
-bm25.evaluate_queries_file(testloc, "bm25-msmarco-query-expansion-Test-.trec", trec=True, relevance_weighing=True, spell_checking=False, n_extra_terms=10)
+index_loc = "../anserini/indexes/msmarco-passage/lucene-index-msmarco"
+test_loc = "../anserini/collections/msmarco-passage/msmarco-test2019-queries.tsv"
+out_loc = "bm25-msmarco.trec"
+
+bm25 = BM25(index_loc)
+bm25.evaluate_queries_file(test_loc, out_loc, trec=True, relevance_weighing=True, spell_checking=False, n_extra_terms=10)

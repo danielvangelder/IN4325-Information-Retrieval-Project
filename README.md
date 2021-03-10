@@ -5,8 +5,10 @@ This is the repository for the implementation of the IR project for the TU Delft
 
 ## Prerequisites:
 - Python 3.6+
+- Pyserini (latest)
 - Pandas (latest)
 - Numpy (latest)
+- autocorrect (latest)
 - jupyter notebook (latest)
 - Maven 3.3+
 - Java 11 or higher
@@ -84,6 +86,9 @@ python -m pyserini.index -collection JsonCollection -generator DefaultLuceneDocu
 ```
 
 10. This should complete the installation process. Verify that everything is correct by running `verify_installation.py` in the `src` folder. This should print `INSTALLATION OK` if everything is working correctly. If not, please refer to the installation of [anserini](https://github.com/castorini/anserini), [pyserini](https://github.com/castorini/pyserini) and the following [doc](https://github.com/castorini/pyserini/blob/master/docs/experiments-msmarco-passage.md#data-prep) to debug.
+
+### Running BM25
+In order to run the BM25 algorithm, run `src/BM25_pyserini.py`. Make sure that the locations to the index and query files specified at the bottom are correct.
 
 ### pygaggle
 
