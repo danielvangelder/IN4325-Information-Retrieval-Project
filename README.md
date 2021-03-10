@@ -1,5 +1,5 @@
 # IN4325 Information Retrieval Project
-##### `Authors:` Thomas Bos (xxxxxxx) & Daniël van Gelder (4551028), group 7
+##### `Authors:` Thomas Bos (4543408) & Daniël van Gelder (4551028), group 7
 
 This is the repository for the implementation of the IR project for the TU Delft MSc course IN4325 Information Retrieval. In this project we implement two baselines for a Passage Ranking task and perform an analysis of the results.
 
