@@ -1,5 +1,3 @@
-from typing import Any, Union
-
 CORPUS_PATH = "collections/msmarco-passage"
 COLLECTION = "trec-deep-learning-passages"
 COLLECTION_ZIP_PATH = "collections/msmarco-passage/collectionandqueries.tar.gz"
@@ -18,9 +16,10 @@ import time
 from sklearn.ensemble import RandomForestRegressor
 import sys
 import string
+import pickle
 
 
-def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TRAIN, run_id=RUN_ID):
+def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TRAIN, top_n_validation=TOP_N_TRAIN, run_id=RUN_ID):
 
     if not pt.started():
         pt.init(mem=8000)
@@ -44,7 +43,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
 
     try:
         print("Indexing MSMARCO passage ranking dataset")
-        print("If the index has not be constructed yet but the MSMARCO dataset has been downloaded previously, it is recommended to place the collection.tar.gz in the \"/Users/\{username\}/.pyterrier/corpora/trec-deep-learning-passages\" directory. This will make sure that PyTerrier does not download the corpus of the internet and uses the local file instead. ")
+        print("If the index has not be constructed yet but the MSMARCO dataset has been downloaded previously, it is recommended to place the collection.tar.gz in the \"/Users/{username}/.pyterrier/corpora/trec-deep-learning-passages\" directory. This will make sure that PyTerrier does not download the corpus of the internet and uses the local file instead. ")
         # Single threaded indexing           
         # iter_indexer = pt.IterDictIndexer("./passage_index")
         # indexref3 = iter_indexer.index(msmarco_generate(), meta=['docno', 'text'], meta_lengths=[20, 4096])            
@@ -57,7 +56,6 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
         if "Index already exists" in str(err):
             print("Index already exists, loading existing one")
             indexref4 = "./passage_index_8/data.properties"
-        
 
     pt.logging('WARN')
     index = pt.IndexFactory.of(indexref4)
@@ -107,14 +105,18 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
 
     print('Getting first {} train topics and corresponding qrels'.format(top_n_train))
     # TODO: not all queries here have qrels... Maybe filter on first 100 that have qrels?
-    if top_n_train > 0:
+    if int(top_n_train) > 0:
         train_sub = train_topics[:top_n_train].copy()
         train_qrels_sub = filter_train_qrels(train_sub, train_qrels)
-        validation_sub = validation_topics[:top_n_train].copy()
-        validation_qrels_sub = filter_train_qrels(validation_sub, validation_qrels)
     else:
         train_sub = train_topics
         train_qrels_sub = train_qrels
+
+    print('Getting first {} validation topics and corresponding qrels'.format(top_n_validation))
+    if int(top_n_validation) > 0:
+        validation_sub = validation_topics[:top_n_validation].copy()
+        validation_qrels_sub = filter_train_qrels(validation_sub, validation_qrels)
+    else:
         validation_sub = validation_topics
         validation_qrels_sub = validation_qrels
     # print(train_qrels_sub)
@@ -132,20 +134,20 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     print('Setting up FeaturesBatchRetriever')
 
 
-    pipeline = pt.FeaturesBatchRetrieve(index, wmodel="BM25", features=["WMODEL:BM25", "WMODEL:Tf", "WMODEL:PL2"]) % feat_batch
+    pipeline = pt.FeaturesBatchRetrieve(index, wmodel="BM25", features=["SAMPLE", "WMODEL:Tf", "WMODEL:PL2", "WMODEL:TF_IDF", "WMODEL:DLH13", "WMODEL:Hiemstra_LM"]) % feat_batch
 
     #### LAMBDAMART
     print('Configuring Ranker...')
     # this configures LightGBM as LambdaMART 
     lmart_l = lgb.LGBMRanker(
         task="train",
-        min_data_in_leaf=1,
-        min_sum_hessian_in_leaf=100,
-        max_bin=255,
+        # min_data_in_leaf=1,
+        # min_sum_hessian_in_leaf=100,
+        # max_bin=255,
         num_leaves=7,
         objective="lambdarank",
         metric="ndcg",
-        ndcg_eval_at=[1, 3, 5, 10],
+        # ndcg_eval_at=[1, 3, 5, 10],
         learning_rate= .1,
         importance_type="gain",
         # num_iterations=10,
@@ -163,9 +165,9 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
 
 
     print('''\n
-    ######################################
-    ##### Training pipeline summary: #####
-    ######################################
+    ########################################
+    ###### Training pipeline summary: ######
+    ########################################
 
     Train Topics: {}
     Train Qrels: {}
@@ -173,7 +175,7 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     Validation Qrels: {}
     Amount of passage samples per query: {}
 
-    ######################################
+    ########################################
 
     '''.format(train_sub.shape[0], train_qrels_sub.shape[0], validation_sub.shape[0], validation_qrels_sub.shape[0], FEATURES_BATCH_N))
 
@@ -193,10 +195,13 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     elif algorithm.upper() == RANDOM_FOREST:
         # RANDOM FOREST
         print('Training RandomForest pipeline')
-
-        ltr_pipeline = pipeline >> pt.ltr.apply_learned_model(RandomForestRegressor(n_jobs=-1,verbose=10))
+        rf_model = RandomForestRegressor(n_jobs=-1,verbose=10)
+        ltr_pipeline = pipeline >> pt.ltr.apply_learned_model(rf_model)
         ltr_pipeline.fit(train_sub, train_qrels_sub, validation_sub, validation_qrels_sub)
         model_name = 'RandomForest'
+    else:
+        print("ERROR: passed invalid algorithm as parameters")
+        sys.exit(1)
 
     ### End of training ###
 
@@ -208,6 +213,19 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     ###########################
     ## RERANKING AND OUTPUT  ##
     ###########################
+    
+    # Output models to pickle files
+
+    # pipeline_filename = '{}_pipeline_{}_{}_{}.p'.format(model_name, train_sub.shape[0], validation_sub.shape[0], run_id)
+    # print('Exporting learned pipline to:', pipeline_filename)
+    # pickle.dump(ltr_pipeline, open(pipeline_filename, "wb"))
+    
+    model_filename = '{}_model_{}_{}_{}.p'.format(model_name, train_sub.shape[0], validation_sub.shape[0], run_id)
+    print('Exporting l2r model to:', model_filename)
+    if algorithm.upper() == LAMBDAMART:
+        pickle.dump(lmart_l, open(model_filename, "wb"))
+    else: 
+        pickle.dump(rf_model, open(model_filename, "wb"))
 
 
     print('Running test evaluation...')
@@ -225,6 +243,8 @@ def main(algorithm=LAMBDAMART, feat_batch=FEATURES_BATCH_N, top_n_train=TOP_N_TR
     print('Writing results...')
     output_file_path = './{}_resuls_{}.trec'.format(model_name,str(run_id))
     pt.io.write_results(res,output_file_path,format='trec')
+
+
     print('SUCCES: results can be found at: ', output_file_path)
 
 
@@ -232,14 +252,15 @@ if __name__ == "__main__":
     file_name = sys.argv[0]
     if len(sys.argv) <= 1:
         main()
-    elif len(sys.argv) == 5:
-        main(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
+    elif len(sys.argv) == 6:
+        main(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]), int(sys.argv[4]),sys.argv[5])
     else:
         print("ERROR: supplied invalid amount of arguments, please pass either 0 or 4 arguments to the program.")
         print('''The arguments are: 
         - [algorithm]: either lambdamart or randomforest, default: lambdamart
         - [no. passages to retrieve in stage 1]: default: 1000
-        - [amount of train/validation topics to use (values <= 0 will be interpreted as using all)], default: 100
+        - [amount of train topics to use (values <= 0 will be interpreted as using all)], default: 100
+        - [amount of validation topics to use (values <= 0 will be interpreted as using all)], default: 100
         - [run name for file output]: default: 00''')
         sys.exit(1)
 
