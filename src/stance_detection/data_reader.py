@@ -14,11 +14,19 @@ class Fnc1Reader:
             self.loc += '/'
         self.train_bodies, self.train_stances = self.read_train()
         self.test_bodies, self.test_stances = self.read_test()
+        self.comp_bodies, self.comp_stances = self.read_comp()
 
     def read_train(self) -> [pd.DataFrame, pd.DataFrame]:
-        """ Reads the train set from the data location."""
-        bodies = pd.read_csv(self.loc + 'train_bodies.csv', names=['Body ID', 'articleBody'], header=1)
-        stances = pd.read_csv(self.loc + 'train_stances.csv', names=['Headline', 'Body ID', 'Stance'], header=1)
+        """Reads the train set from the data location."""
+        return self.read_labelled('train_bodies.csv', 'train_stances.csv')
+
+    def read_comp(self) -> [pd.DataFrame, pd.DataFrame]:
+        """Reads the competition data set from the data location"""
+        return self.read_labelled('competition_test_bodies.csv', 'competition_test_stances.csv')
+
+    def read_labelled(self, bodies_loc: str, stances_loc: str) -> [pd.DataFrame, pd.DataFrame]:
+        bodies = pd.read_csv(self.loc + bodies_loc, names=['Body ID', 'articleBody'], header=1)
+        stances = pd.read_csv(self.loc + stances_loc, names=['Headline', 'Body ID', 'Stance'], header=1)
         labels = list(map(self.stance_to_label, stances['Stance'].to_list()))
         stances['Label'] = labels
         assert len(bodies) != 0 and len(stances) != 0
@@ -70,9 +78,43 @@ class Fnc1Reader:
 
         return folds
 
-    def get_body_train(self, body_id: int):
+    def get_body_train(self, body_id: int) -> str:
         """Returns the right body text from the train set."""
         return self.train_bodies.loc[self.train_bodies['Body ID'] == body_id]['articleBody'].to_list()[0]
+
+    def evaluate_comp(self, labels: Union[List[int], List[str]]) -> float:
+        """Evaluates the given labels on the competition data set."""
+        if type(labels) == List[int]:
+            return self.evaluate_fold(self.comp_stances, labels)
+        elif type(labels) == List[str]:
+            return self.evaluate_fold(self.comp_stances, list(map(self.stance_to_label, labels)))
+        else:
+            raise Exception('Bad labels format: ' + str(labels))
+
+    def evaluate_fold(self, fold: pd.DataFrame, labels: List[int]) -> float:
+        """Evaluates a data fold with the given labels"""
+        assert len(fold.index) == len(labels)
+        score = 0
+        for i, row in fold.iterrows():
+            score += self.score(row['Label'], labels[i])
+        return score
+
+    def score(self, actual: int, output: int) -> float:
+        """
+        As in scorer.py provided by FNC-1.
+        +0.25 for each correct unrelated
+        +0.25 for each correct related (label is any of agree, disagree, discuss)
+        +0.75 for each correct agree, disagree, discuss
+        """
+        assert output in [1, 2, 3, 4]
+        score = 0
+        if actual == output:
+            score += 0.25
+            if actual != 4:
+                score += 0.50
+        if actual in [1, 2, 3] and output in [1, 2, 3]:
+            score += 0.25
+        return score
 
 
 reader = Fnc1Reader('src/data/fnc-1/')
