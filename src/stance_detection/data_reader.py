@@ -2,6 +2,7 @@ from typing import List, Union
 
 import pandas as pd
 from math import ceil
+import numpy as np
 
 
 class Fnc1Reader:
@@ -84,12 +85,12 @@ class Fnc1Reader:
 
     def evaluate_comp(self, labels: Union[List[int], List[str]]) -> float:
         """Evaluates the given labels on the competition data set."""
-        if type(labels) == List[int]:
+        if all(isinstance(label, int) for label in labels):
             return self.evaluate_fold(self.comp_stances, labels)
-        elif type(labels) == List[str]:
+        elif all(isinstance(label, str) for label in labels):
             return self.evaluate_fold(self.comp_stances, list(map(self.stance_to_label, labels)))
         else:
-            raise Exception('Bad labels format: ' + str(labels))
+            raise Exception('Bad labels format: ' + str(type(labels)))
 
     def evaluate_fold(self, fold: pd.DataFrame, labels: List[int]) -> float:
         """Evaluates a data fold with the given labels"""
@@ -118,5 +119,7 @@ class Fnc1Reader:
 
 
 reader = Fnc1Reader('src/data/fnc-1/')
-print(reader.kfold(10))
-print(reader.get_body_train(10))
+# print(reader.kfold(10))
+# print(reader.get_body_train(10))
+labels: List[int] = np.random.randint(1, 5, len(reader.comp_stances.index)).tolist()
+print(reader.evaluate_comp(labels))
